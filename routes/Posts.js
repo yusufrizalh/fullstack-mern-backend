@@ -1,11 +1,14 @@
 const express = require("express");
-const { Posts } = require("../models");
+const { Posts, Likes } = require("../models");
 const router = express.Router();
+const { validateToken } = require("../middlewares/AuthMiddleware");
 
-// method GET
-router.get("/", async (req, res) => {
-  const allPosts = await Posts.findAll(); // SELECT * FROM posts
-  res.json(allPosts);
+// method GET untuk menampilkan seluruh Posts
+router.get("/", validateToken, async (req, res) => {
+  // SELECT * FROM posts JOIN likes ON
+  const allPosts = await Posts.findAll({ include: [Likes] });
+  const likedPost = await Likes.findAll({ where: { UserId: req.user.id } }); // post yg sudah ada like
+  res.json({ allPosts: allPosts, likedPost: likedPost });
 });
 
 // method GET by primary key
