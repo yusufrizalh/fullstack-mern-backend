@@ -10,6 +10,15 @@ router.get("/auth", validateToken, (req, res) => {
   res.json(req.user);
 });
 
+// method GET untuk melihat detail user
+router.get("/basicinfo/:id", async (req, res) => {
+  const id = req.params.id;
+  const basicinfo = await Users.findByPk(id, {
+    attributes: { exclude: ["password"] }, // tampilkan seluruh kolom kecuali password
+  });
+  res.json(basicinfo);
+});
+
 // method POST untuk register user
 router.post("/", async (req, res) => {
   const { username, password } = req.body;

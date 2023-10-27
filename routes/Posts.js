@@ -18,12 +18,31 @@ router.get("/byId/:id", async (req, res) => {
   res.json(post);
 });
 
+// method GET menampilkan post milik userId yang mana
+router.get("/byuserId/:id", async (req, res) => {
+  const id = req.params.id;
+  const allPostsByUserId = await Posts.findAll({
+    where: { UserId: id },
+    include: [Likes],
+  });
+  res.json(allPostsByUserId);
+});
+
 // method POST
-router.post("/", async (req, res) => {
+router.post("/", validateToken, async (req, res) => {
   const post = req.body; // body = isian yang diberikan dari form
+  post.username = req.user.username; // username yang membuat post baru
+  post.UserId = req.user.id; // UserId yang membuat post baru
   await Posts.create(post); // INSERT INTO posts
   console.log("INFO: " + res.statusCode);
   res.json(post);
+});
+
+// method DELETE
+router.delete("/:postId", validateToken, async (req, res) => {
+  const postId = req.params.postId;
+  await Posts.destroy({ where: { id: postId } });
+  res.json("Delete post is success!");
 });
 
 module.exports = router;
